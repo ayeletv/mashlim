@@ -3,64 +3,842 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>בדיקת חיבור Firebase — משלים למניין</title>
+<title>משלים למניין — השלמת מניין לקבר (דמה להמחשה)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#1c2b45; --navy-dark:#131e30; --gold:#c8972f; --gold-light:#e9c878;
-    --bg:#f6f4ef; --card:#ffffff; --ink:#1c2b45; --ink-soft:#5b6779;
-    --green:#2f8a5b; --green-bg:#e9f5ee; --red:#c04545; --red-bg:#fbeaea;
+    --navy:#1c2b45;
+    --navy-dark:#131e30;
+    --gold:#c8972f;
+    --gold-light:#e9c878;
+    --bg:#f6f4ef;
+    --card:#ffffff;
+    --ink:#1c2b45;
+    --ink-soft:#5b6779;
+    --border:#e6e2d8;
+    --green:#2f8a5b;
+    --green-bg:#e9f5ee;
+    --amber:#b8792a;
+    --amber-bg:#fbf0dd;
+    --gray:#8a92a0;
+    --gray-bg:#eef0f3;
+    --red:#c04545;
+    --red-bg:#fbeaea;
+    --shadow: 0 2px 10px rgba(28,43,69,0.06), 0 1px 2px rgba(28,43,69,0.06);
+    --shadow-lg: 0 12px 32px rgba(28,43,69,0.12);
+    --radius: 14px;
   }
   *{box-sizing:border-box;}
-  body{font-family:'Heebo',system-ui,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:40px 20px;min-height:100vh;}
-  .wrap{max-width:560px;margin:0 auto;}
-  .card{background:var(--card);border-radius:16px;padding:32px;box-shadow:0 2px 10px rgba(28,43,69,0.08);}
-  h1{font-size:22px;margin:0 0 6px;}
-  p.sub{color:var(--ink-soft);font-size:14px;margin:0 0 26px;line-height:1.6;}
-  button{
-    background:var(--navy);color:#fff;border:none;border-radius:10px;
-    padding:14px 20px;font-size:16px;font-weight:700;font-family:inherit;
-    cursor:pointer;width:100%;transition:.15s;
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Heebo', system-ui, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
   }
-  button:hover{background:var(--navy-dark);}
-  button:disabled{opacity:.6;cursor:default;}
-  .result{margin-top:22px;padding:18px;border-radius:12px;font-size:14.5px;line-height:1.7;display:none;}
-  .result.show{display:block;}
-  .result.ok{background:var(--green-bg);color:#1f5c3d;border:1px solid #bfe4cf;}
-  .result.err{background:var(--red-bg);color:#7a2b2b;border:1px solid #f0c6c6;}
-  .result b{display:block;margin-bottom:6px;font-size:15px;}
-  .tips{margin-top:18px;font-size:13px;color:var(--ink-soft);background:#faf9f5;border:1px solid #e6e2d8;border-radius:10px;padding:14px;line-height:1.7;}
-  code{background:#eef0f3;padding:2px 6px;border-radius:5px;font-size:12.5px;direction:ltr;display:inline-block;}
-  pre{background:#131e30;color:#dfe6f0;padding:14px;border-radius:10px;font-size:12px;overflow-x:auto;direction:ltr;text-align:left;margin:8px 0 0;}
+  .draft-ribbon{
+    background:var(--navy-dark);
+    color:#dfe6f0;
+    text-align:center;
+    font-size:13px;
+    padding:7px 12px;
+    letter-spacing:.3px;
+  }
+  .draft-ribbon b{color:var(--gold-light);}
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:0 24px;
+    box-shadow:var(--shadow);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .header-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 0;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    font-size:22px;
+  }
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--navy-dark);font-weight:800;font-size:18px;
+  }
+  nav{display:flex;gap:4px;flex-wrap:wrap;}
+  nav button{
+    background:transparent;
+    border:none;
+    color:#c7d0de;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:500;
+    padding:9px 14px;
+    border-radius:9px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  nav button:hover{background:rgba(255,255,255,0.08);color:#fff;}
+  nav button.active{background:var(--gold);color:var(--navy-dark);font-weight:700;}
+
+  main{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+  section{display:none;animation:fade .25s ease;}
+  section.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  /* HOME */
+  .hero{
+    background:linear-gradient(135deg,var(--navy) 0%, var(--navy-dark) 100%);
+    border-radius:20px;
+    color:#fff;
+    padding:56px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:36px;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 80% -10%, rgba(200,151,47,0.25), transparent 55%);
+  }
+  .hero h1{font-size:38px;margin:0 0 12px;font-weight:800;position:relative;}
+  .hero p{font-size:17px;color:#cfd8e6;max-width:620px;margin:0 auto 30px;position:relative;line-height:1.7;}
+  .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;}
+  .cta-card{
+    background:#fff;
+    color:var(--ink);
+    border-radius:16px;
+    padding:26px 28px;
+    width:270px;
+    text-align:right;
+    box-shadow:var(--shadow-lg);
+    cursor:pointer;
+    transition:.18s;
+    border:2px solid transparent;
+  }
+  .cta-card:hover{transform:translateY(-3px);border-color:var(--gold);}
+  .cta-card .icon{
+    width:44px;height:44px;border-radius:12px;
+    background:var(--gold-bg,#fbf0dd);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+  }
+  .cta-card h3{margin:0 0 6px;font-size:18px;}
+  .cta-card p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
+  .cta-card .arrow{margin-top:14px;font-size:13px;color:var(--gold);font-weight:700;}
+
+  .features{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin-top:8px;
+  }
+  .feature{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+  .feature .num{
+    font-size:12px;font-weight:700;color:var(--gold);
+    letter-spacing:1px;margin-bottom:8px;
+  }
+  .feature h4{margin:0 0 8px;font-size:16px;}
+  .feature p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
+
+  .avrech-note{
+    margin-top:36px;
+    background:var(--amber-bg);
+    border:1px solid #edd6a8;
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    gap:18px;
+    align-items:flex-start;
+  }
+  .avrech-note .icon-circle{
+    width:42px;height:42px;min-width:42px;border-radius:50%;
+    background:var(--gold);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+  }
+  .avrech-note h4{margin:0 0 6px;font-size:16px;}
+  .avrech-note p{margin:0;font-size:14px;color:#6b4f22;line-height:1.7;}
+
+  .chip{
+    display:flex;align-items:center;gap:7px;
+    border:1.5px solid var(--border);border-radius:20px;
+    padding:8px 14px;font-size:13.5px;cursor:pointer;background:#fdfcfa;
+  }
+  .chip input{accent-color:var(--gold);}
+  .step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;color:#cfd8e6;font-size:13.5px;line-height:1.6;}
+  .step-row:last-child{margin-bottom:0;}
+  .step-num{
+    width:22px;height:22px;min-width:22px;border-radius:50%;
+    background:var(--gold);color:var(--navy-dark);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;margin-top:1px;
+  }
+  .phone-mock{
+    margin-top:18px;
+    background:var(--navy-dark);
+    border-radius:14px;
+    padding:18px 20px;
+    color:#dfe6f0;
+    font-size:13.5px;
+    line-height:1.9;
+    font-family:'Heebo',monospace;
+  }
+  .phone-mock .line{display:flex;gap:8px;margin-bottom:2px;}
+  .phone-mock .tag{color:var(--gold-light);font-weight:700;min-width:64px;}
+
+  /* Cards / form generic */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .panel-head{
+    padding:22px 28px;
+    border-bottom:1px solid var(--border);
+  }
+  .panel-head h2{margin:0 0 4px;font-size:21px;}
+  .panel-head p{margin:0;color:var(--ink-soft);font-size:14px;}
+  .panel-body{padding:26px 28px;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+  .field label{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .field input, .field select, .field textarea{
+    font-family:inherit;
+    padding:11px 13px;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    font-size:14.5px;
+    color:var(--ink);
+    background:#fdfcfa;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none;border-color:var(--gold);background:#fff;
+  }
+  .stepper{display:flex;align-items:center;gap:14px;}
+  .stepper button{
+    width:38px;height:38px;border-radius:9px;border:1.5px solid var(--border);
+    background:#fdfcfa;font-size:18px;cursor:pointer;color:var(--navy);
+  }
+  .stepper .count{font-size:22px;font-weight:800;min-width:30px;text-align:center;}
+
+  .layout-split{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start;}
+  .summary-box{
+    background:var(--navy);
+    color:#fff;
+    border-radius:var(--radius);
+    padding:24px;
+  }
+  .summary-box h3{margin:0 0 16px;font-size:16px;color:var(--gold-light);}
+  .summary-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px;color:#cfd8e6;}
+  .summary-row.total{
+    border-top:1px solid rgba(255,255,255,0.15);
+    padding-top:14px;margin-top:14px;
+    font-size:18px;font-weight:800;color:#fff;
+  }
+  .btn-primary{
+    display:inline-block;width:100%;
+    background:var(--gold);
+    color:var(--navy-dark);
+    border:none;padding:14px;border-radius:10px;
+    font-family:inherit;font-size:15.5px;font-weight:800;
+    cursor:pointer;margin-top:16px;transition:.15s;
+    text-align:center;
+  }
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-ghost{
+    background:transparent;border:1.5px solid var(--border);
+    padding:9px 16px;border-radius:9px;font-family:inherit;
+    font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;
+  }
+
+  /* Payment */
+  .card-mock{
+    background:linear-gradient(135deg,#26365a,#1c2b45);
+    border-radius:16px;color:#fff;padding:26px;
+    font-family:'Heebo',monospace;margin-bottom:22px;
+    box-shadow:var(--shadow-lg);
+  }
+  .card-mock .num{font-size:19px;letter-spacing:3px;margin:22px 0 18px;color:#e6ebf3;}
+  .card-mock .row{display:flex;justify-content:space-between;font-size:11px;color:#9fb0c8;letter-spacing:.5px;}
+  .secure-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--green-bg);color:var(--green);
+    font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:20px;
+    margin-bottom:18px;
+  }
+  .success-box{
+    text-align:center;padding:50px 20px;
+  }
+  .success-icon{
+    width:70px;height:70px;border-radius:50%;
+    background:var(--green-bg);color:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px;margin:0 auto 20px;
+  }
+  .success-box h2{margin:0 0 10px;}
+  .success-box p{color:var(--ink-soft);max-width:420px;margin:0 auto;line-height:1.7;}
+
+  /* Dashboard */
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;}
+  .stat-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;
+  }
+  .stat-card .label{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .stat-card .value{font-size:26px;font-weight:800;}
+  .stat-card.highlight{background:var(--navy);border-color:var(--navy);}
+  .stat-card.highlight .label{color:#b9c4d6;}
+  .stat-card.highlight .value{color:var(--gold-light);}
+
+  .table-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;overflow:hidden;}
+  .table-panel .panel-head{display:flex;justify-content:space-between;align-items:center;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{
+    text-align:right;padding:12px 20px;background:#faf9f6;
+    color:var(--ink-soft);font-size:12.5px;font-weight:700;
+    border-bottom:1px solid var(--border);
+  }
+  td{padding:14px 20px;border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  .badge{
+    display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;
+  }
+  .badge.open{background:var(--amber-bg);color:var(--amber);}
+  .badge.progress{background:#e6edfb;color:#33528f;}
+  .badge.done{background:var(--green-bg);color:var(--green);}
+  .badge.paid{background:var(--gray-bg);color:#556;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;}
+  .dot.g{background:var(--green);}
+  .dot.y{background:#d3a12a;}
+  .dot.r{background:var(--red);}
+  .row-btn{
+    background:var(--navy);color:#fff;border:none;padding:7px 14px;
+    border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
+  }
+  .row-btn.secondary{background:#fff;color:var(--navy);border:1.5px solid var(--border);}
+
+  footer{
+    text-align:center;padding:26px;color:var(--ink-soft);font-size:12.5px;
+    border-top:1px solid var(--border);
+  }
+
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(19,30,48,0.55);
+    align-items:center;justify-content:center;z-index:100;padding:20px;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal{
+    background:#fff;border-radius:16px;padding:26px 28px;width:100%;max-width:440px;
+    box-shadow:var(--shadow-lg);
+  }
+  .modal h3{margin:0 0 6px;font-size:18px;}
+  .modal > p{margin:0 0 18px;font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    background:var(--navy);color:#fff;padding:12px 22px;border-radius:10px;
+    font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);
+    display:none;z-index:200;
+  }
+  .toast.active{display:block;}
+
+  .modal.wide{max-width:640px;}
+  .dropzone{
+    border:2px dashed var(--border);
+    border-radius:12px;
+    padding:34px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.15s;
+    background:#fdfcfa;
+  }
+  .dropzone:hover{border-color:var(--gold);background:#fbf7ee;}
+  .dropzone .icon{font-size:28px;margin-bottom:10px;}
+  .dropzone .main{font-size:14.5px;font-weight:700;margin-bottom:4px;}
+  .dropzone .sub{font-size:12.5px;color:var(--ink-soft);}
+  .import-summary{display:flex;gap:14px;margin:18px 0;}
+  .import-summary .pill{flex:1;text-align:center;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;}
+  .import-summary .pill.ok{background:var(--green-bg);color:var(--green);}
+  .import-summary .pill.warn{background:var(--amber-bg);color:var(--amber);}
+  .mini-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px;}
+  .mini-table th{background:#faf9f6;padding:8px 10px;text-align:right;color:var(--ink-soft);font-weight:700;border-bottom:1px solid var(--border);}
+  .mini-table td{padding:8px 10px;border-bottom:1px solid var(--border);}
+  .mini-table tr.err td{color:var(--red);background:var(--red-bg);}
+  .spinner{
+    width:30px;height:30px;border-radius:50%;
+    border:3px solid var(--border);border-top-color:var(--gold);
+    margin:6px auto 16px;animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width:860px){
+    .grid-2, .layout-split, .stat-row, .features{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>בדיקת חיבור ל-Firebase</h1>
-    <p class="sub">לוחצים על הכפתור — העמוד ינסה לכתוב ולקרוא רשומת בדיקה מה-Firestore של פרויקט <b>minyan-540d0</b>. אם זה עובד, סימן שהחיבור תקין ואפשר להתקדם.</p>
-    <button id="testBtn" onclick="runTest()">בדוק חיבור עכשיו</button>
-    <div id="result" class="result"></div>
-    <div class="tips">
-      <b style="display:block;color:var(--ink);margin-bottom:4px;">אם קיבלת שגיאת "permission-denied":</b>
-      זה תקין — Firestore חוסם גישה כברירת מחדל. יש להיכנס ל-Firebase Console → Firestore Database → לשונית Rules, ולהדביק זמנית:
-      <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /connection_test/{doc} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-      ואז ללחוץ Publish ולנסות שוב. (זו הרשאה זמנית לבדיקה בלבד — לפני שהאתר עולה לאוויר באמת נגדיר הרשאות מאובטחות כמו שצריך.)
+
+<div class="draft-ribbon">🔗 <b>מחובר למסד נתונים אמיתי</b> — טפסי הבקשה וההצטרפות נשמרים בפועל ב-Firestore. תשלומים ושיחות טלפוניות עדיין בדמו, ממתינים לחיבור ספק סליקה</div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand"><span class="brand-mark">מ</span> משלים למניין</div>
+    <nav>
+      <button class="tab-btn active" data-tab="home">בית</button>
+      <button class="tab-btn" data-tab="request">פתיחת בקשה</button>
+      <button class="tab-btn" data-tab="avrech">הצטרפות כאברך</button>
+      <button class="tab-btn" data-tab="payment">תשלום</button>
+      <button class="tab-btn" data-tab="admin">מסך ניהול</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="active">
+    <div class="hero">
+      <h1>עוזרים להשלים מניין לתפילה על יקיריכם</h1>
+      <p>כשחסרים אנשים למניין על הקבר — אנחנו מחברים אתכם לאברכים ותלמידי חכמים אמינים באזור, במהירות ובכבוד הראוי.</p>
+      <div class="cta-row">
+        <div class="cta-card" onclick="showTab('request')">
+          <div class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8792a" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c1.9 0 3.3 1 4 2 .7-1 2.1-2 4-2 3.5 0 6 3.5 4 7.5C19 16.65 12 21 12 21z"/></svg>
+          </div>
+          <h3>מחפש/ת מניין לקבר</h3>
+          <p>פתיחת בקשה תוך דקה — נמלא פרטים, נשלם, והמערכת כבר מחפשת אברכים מתאימים.</p>
+          <div class="arrow">פתיחת בקשה ←</div>
+        </div>
+        <div class="cta-card" onclick="showTab('avrech')">
+          <div class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8792a" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4z"/><path d="M4 11v5c0 1.5 3.5 3 8 3s8-1.5 8-3v-5"/></svg>
+          </div>
+          <h3>אני אברך — רוצה לעזור</h3>
+          <p>הרשמה קצרה למאגר, וקבלת שיחה ברגע שיש בקשה מתאימה באזור שלכם.</p>
+          <div class="arrow">הצטרפות למאגר ←</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature"><div class="num">01</div><h4>מהירות</h4><p>המערכת מתקשרת אוטומטית לאברכים מתאימים באזור ומשבצת את הראשון שמאשר.</p></div>
+      <div class="feature"><div class="num">02</div><h4>שקיפות</h4><p>תשלום מאובטח בכרטיס אשראי, וההעברה לאברך מתבצעת אוטומטית מיד לאחר אישור ההגעה.</p></div>
+      <div class="feature"><div class="num">03</div><h4>כבוד ואמינות</h4><p>רק אברכים המחוברים דרך כולל, ישיבה או קהילה מוכרת — לא הרשמה אנונימית.</p></div>
+    </div>
+  </section>
+
+  <!-- REQUEST FORM -->
+  <section id="request">
+    <div class="layout-split">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>פתיחת בקשה למניין</h2>
+          <p>מלאו את הפרטים ונתחיל לחפש אברכים מתאימים באזור</p>
+        </div>
+        <div class="panel-body">
+          <div class="grid-2">
+            <div class="field"><label>שם מלא</label><input type="text" id="reqName" placeholder="ישראל ישראלי"></div>
+            <div class="field"><label>טלפון נייד</label><input type="text" id="reqPhone" placeholder="050-0000000"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>בית עלמין</label>
+              <select id="reqCemetery">
+                <option>הר המנוחות, ירושלים</option>
+                <option>סגולה, פתח תקווה</option>
+                <option>קריית שאול, תל אביב</option>
+                <option>תל גיבורים, חולון</option>
+                <option>אחר (נציין בהערות)</option>
+              </select>
+            </div>
+            <div class="field"><label>עיר / אזור</label><input type="text" id="reqCity" placeholder="פתח תקווה"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>תאריך</label><input type="date" id="reqDate"></div>
+            <div class="field"><label>שעה</label><input type="time" id="reqTime"></div>
+          </div>
+          <div class="field">
+            <label>כמה משתתפים חסרים להשלמת המניין?</label>
+            <div class="stepper">
+              <button onclick="changeCount(1)">+</button>
+              <div class="count" id="countVal">3</div>
+              <button onclick="changeCount(-1)">−</button>
+              <span style="color:var(--ink-soft);font-size:13px;">מתוך 10</span>
+            </div>
+          </div>
+          <div class="field"><label>הערות נוספות (לא חובה)</label><textarea rows="3" id="reqNotes" placeholder="למשל: חלקת קבר, נקודת ציון, בקשה מיוחדת..."></textarea></div>
+          <div id="reqError" style="display:none;color:var(--red);font-size:13px;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <div class="summary-box">
+        <h3>סיכום הבקשה</h3>
+        <div class="summary-row"><span>בית עלמין</span><span>סגולה, פ״ת</span></div>
+        <div class="summary-row"><span>תאריך ושעה</span><span>—</span></div>
+        <div class="summary-row"><span>חסרים למניין</span><span id="summaryCount">3 אנשים</span></div>
+        <div class="summary-row"><span>עלות לאברך (משוער)</span><span>₪150</span></div>
+        <div class="summary-row total"><span>סה״כ לתשלום</span><span id="summaryTotal">₪450</span></div>
+        <button class="btn-primary" id="reqSubmitBtn" onclick="submitRequest()">שמירת הבקשה והמשך לתשלום ←</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVRECH REGISTRATION -->
+  <section id="avrech">
+    <div class="layout-split">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>הצטרפות כאברך למאגר</h2>
+          <p>מלאו פרטים פעם אחת, וקבלו שיחה ברגע שיש בקשה מתאימה באזור שלכם</p>
+        </div>
+        <div class="panel-body">
+          <div class="grid-2">
+            <div class="field"><label>שם מלא</label><input type="text" id="avName" placeholder="שם ושם משפחה"></div>
+            <div class="field"><label>טלפון נייד</label><input type="text" id="avPhone" placeholder="050-0000000"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>עיר מגורים</label><input type="text" id="avCity" placeholder="בני ברק"></div>
+            <div class="field"><label>קבוצה / כולל / ישיבה (לא חובה)</label><input type="text" id="avGroup" placeholder="לדוגמה: כולל חזון איש"></div>
+          </div>
+          <div class="field">
+            <label>אזורים בהם מוכן/ה להגיע</label>
+            <div id="avRegions" style="display:flex;flex-wrap:wrap;gap:10px;">
+              <label class="chip"><input type="checkbox" value="בני ברק"> בני ברק</label>
+              <label class="chip"><input type="checkbox" value="ירושלים"> ירושלים</label>
+              <label class="chip"><input type="checkbox" value="פתח תקווה"> פתח תקווה</label>
+              <label class="chip"><input type="checkbox" value="תל אביב"> תל אביב</label>
+              <label class="chip"><input type="checkbox" value="חולון"> חולון</label>
+              <label class="chip"><input type="checkbox" value="אחר"> אחר</label>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>זמין החל מהשעה</label><input type="time" id="avFrom"></div>
+            <div class="field"><label>זמין עד השעה</label><input type="time" id="avTo"></div>
+          </div>
+
+          <div style="border-top:1px solid var(--border);margin:22px 0 20px;padding-top:20px;">
+            <p style="margin:0 0 14px;font-size:13.5px;font-weight:700;">פרטי תשלום לקבלת כספים</p>
+            <div class="grid-2">
+              <div class="field">
+                <label>אמצעי קבלת תשלום</label>
+                <select id="avPayMethod">
+                  <option>העברה בנקאית</option>
+                  <option>ביט</option>
+                  <option>פייבוקס</option>
+                </select>
+              </div>
+              <div class="field"><label>מספר חשבון / טלפון לקבלה</label><input type="text" id="avPayDetails" placeholder="לפי האמצעי שנבחר"></div>
+            </div>
+            <p style="margin:0;font-size:12.5px;color:var(--ink-soft);">התשלום עבור כל השתתפות יועבר אוטומטית לאמצעי הזה, מיד לאחר אישור ההגעה בפועל.</p>
+          </div>
+          <div id="avError" style="display:none;color:var(--red);font-size:13px;margin-bottom:10px;"></div>
+          <button class="btn-primary" id="avSubmitBtn" onclick="submitAvrech()">שליחת בקשה להצטרפות ←</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="summary-box">
+          <h3>איך זה עובד?</h3>
+          <div class="step-row"><span class="step-num">1</span><span>ממלאים פרטים ופרטי תשלום, פעם אחת</span></div>
+          <div class="step-row"><span class="step-num">2</span><span>שיחת אימות קצרה למספר שהוזן</span></div>
+          <div class="step-row"><span class="step-num">3</span><span>כשיש בקשה מתאימה — מתקבלת שיחה, ולוחצים 1 להצטרפות</span></div>
+          <div class="step-row"><span class="step-num">4</span><span>התשלום מועבר אוטומטית לאחר אישור ההגעה בפועל</span></div>
+        </div>
+
+        <div class="avrech-note" style="margin-top:20px;">
+          <div class="icon-circle">i</div>
+          <div>
+            <h4>אין אינטרנט? אין בעיה</h4>
+            <p>מי שאין לו טלפון עם אינטרנט לא חייב למלא את הטופס בעצמו. כולל, ישיבה או קהילה יכולים לשלוח רשימת אברכים כקובץ אקסל דרך מסך הניהול, ומאותו רגע המערכת יוצרת איתם קשר טלפונית בלבד.</p>
+            <div class="phone-mock">
+              <div class="line"><span class="tag">מערכת:</span> "שלום, נמצאה בקשה למניין בבית העלמין סגולה, פתח תקווה, היום 16:30. חסרים 3 אנשים. להצטרפות הקישו 1."</div>
+              <div class="line"><span class="tag">אברך:</span> [מקיש 1]</div>
+              <div class="line"><span class="tag">מערכת:</span> "אושרת! תזכורת תישלח 30 דקות לפני. תודה רבה."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVRECH SUCCESS -->
+  <section id="avrech-success">
+    <div class="panel">
+      <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h2>הבקשה להצטרפות נקלטה</h2>
+        <p>תוך דקות תתקבל שיחת אימות קצרה למספר שהזנת. לאחר האימות תתחילו לקבל שיחות על בקשות מתאימות באזור שסימנתם, והתשלום יועבר אוטומטית לאמצעי שנרשם בכל פעם שתאשרו הגעה בפועל.</p>
+        <button class="btn-ghost" style="margin-top:22px;" onclick="showTab('home')">חזרה לדף הבית</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENT -->
+  <section id="payment">
+    <div style="max-width:520px;margin:0 auto;">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>תשלום מאובטח</h2>
+          <p>הסכום מוחזק אצלנו באופן מאובטח, ומועבר אוטומטית לאברך מיד לאחר אישור ההגעה בפועל</p>
+        </div>
+        <div class="panel-body">
+          <span class="secure-badge">🔒 חיבור מוצפן — פרטי האשראי אינם נשמרים באתר</span>
+
+          <div class="card-mock">
+            <div class="row"><span>מספר כרטיס</span><span>תוקף</span></div>
+            <div class="num">•••• •••• •••• 4210</div>
+            <div class="row"><span>שם בעל הכרטיס</span><span>12/28</span></div>
+          </div>
+
+          <div class="field"><label>שם בעל הכרטיס</label><input type="text" placeholder="כפי שמופיע בכרטיס"></div>
+          <div class="grid-2">
+            <div class="field"><label>מספר כרטיס</label><input type="text" placeholder="0000 0000 0000 0000"></div>
+            <div class="field"><label>CVV</label><input type="text" placeholder="123"></div>
+          </div>
+
+          <div class="summary-row total" style="color:var(--ink);border-top:1px solid var(--border);padding-top:14px;">
+            <span>סה״כ לחיוב</span><span>₪450</span>
+          </div>
+          <button class="btn-primary" onclick="showTab('success')">אשר/י ושלם/י ₪450 ←</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUCCESS -->
+  <section id="success">
+    <div class="panel">
+      <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h2>הבקשה נשלחה בהצלחה</h2>
+        <p>אנחנו כבר מחפשים אברכים מתאימים באזור סגולה, פתח תקווה. תקבלו עדכון טלפוני ברגע שיימצאו 3 אברכים פנויים. התשלום כבר מאובטח אצלנו, ויועבר אליהם אוטומטית ברגע שתאשרו שהגיעו בפועל.</p>
+        <button class="btn-ghost" style="margin-top:22px;" onclick="showTab('home')">חזרה לדף הבית</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <div>
+        <h2 style="margin:0 0 4px;">מסך ניהול</h2>
+        <p style="margin:0;color:var(--ink-soft);font-size:14px;">תמונת מצב של כל הבקשות והאברכים הפעילים</p>
+      </div>
+      <button class="row-btn" onclick="openImportModal()">📥 ייבוא אברכים מאקסל</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">בקשות פעילות</div><div class="value">24</div></div>
+      <div class="stat-card"><div class="label">ממתינות להשלמה</div><div class="value">8</div></div>
+      <div class="stat-card"><div class="label">הושלמו החודש</div><div class="value">16</div></div>
+      <div class="stat-card"><div class="label">אברכים פעילים</div><div class="value" id="activeAvrechCount">37</div></div>
+      <div class="stat-card highlight"><div class="label">ממתין לשחרור אוטומטי</div><div class="value" id="pendingAmount">₪2,480</div></div>
+    </div>
+
+    <div class="table-panel">
+      <div class="panel-head"><h2 style="font-size:17px;">בקשות אחרונות</h2></div>
+      <table>
+        <thead><tr><th>מבקש</th><th>בית עלמין</th><th>תאריך</th><th>חסרים</th><th>סטטוס</th><th>תשלום לאברך</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>רחל כהן</td><td>סגולה, פ״ת</td><td>19.9 · 16:30</td><td>3</td><td><span class="badge progress">בטיפול</span></td><td>ממתין למניין</td><td><button class="row-btn secondary">פרטים</button></td></tr>
+          <tr><td>משה לוי</td><td>הר המנוחות</td><td>18.9 · 09:00</td><td>2</td><td><span class="badge done">הושלמה</span></td><td id="mosheStatusCell">ממתין לאישור הגעה</td><td><button class="row-btn" onclick="openPayModal()">אשר הגעה</button></td></tr>
+          <tr><td>שרה אברהם</td><td>קריית שאול</td><td>17.9 · 14:00</td><td>5</td><td><span class="badge done">הושלמה</span></td><td><span class="badge paid">הועבר אוטומטית</span></td><td><button class="row-btn secondary">פרטים</button></td></tr>
+          <tr><td>דוד ישראלי</td><td>תל גיבורים</td><td>20.9 · 11:00</td><td>1</td><td><span class="badge open">פתוחה</span></td><td>—</td><td><button class="row-btn secondary">פרטים</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-panel">
+      <div class="panel-head"><h2 style="font-size:17px;">אברכים במאגר</h2></div>
+      <table>
+        <thead><tr><th>שם</th><th>טלפון</th><th>עיר</th><th>קבוצה</th><th>סטטוס</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>אברהם כהן</td><td>050-1234567</td><td>בני ברק</td><td>כולל חזון איש</td><td><span class="dot g"></span>פעיל</td><td><button class="row-btn secondary">עריכה</button></td></tr>
+          <tr><td>יעקב לוי</td><td>052-2345678</td><td>ירושלים</td><td>כולל פוניבז'</td><td><span class="dot y"></span>לא זמין עד 25.9</td><td><button class="row-btn secondary">עריכה</button></td></tr>
+          <tr><td>דוד ישראל</td><td>054-3456789</td><td>פתח תקווה</td><td>ישיבת מיר</td><td><span class="dot g"></span>פעיל</td><td><button class="row-btn secondary">עריכה</button></td></tr>
+          <tr><td>יוסי מזרחי</td><td>053-4567890</td><td>תל אביב</td><td>עצמאי</td><td><span class="dot r"></span>לא פעיל</td><td><button class="row-btn secondary">עריכה</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+    <img src="data:image/png;base64,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" alt="כולל זכרון דוד" style="height:44px;width:auto;border-radius:8px;box-shadow:var(--shadow);">
+    <span style="font-size:13.5px;color:var(--ink-soft);">האתר מוקדש לעילוי נשמת <b style="color:var(--ink);">דוד בן יעקב ז״ל</b></span>
+  </div>
+  <div>קובץ דמה סטטי להמחשת הרעיון בלבד — הכפתורים עוברים בין המסכים, אין חיבור אמיתי לתשלומים, שיחות או מסד נתונים.</div>
+</footer>
+
+<div class="modal-overlay" id="payModalOverlay" onclick="closePayModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>אישור הגעה בפועל</h3>
+    <p>לאחר האישור, התשלום יועבר אוטומטית לאמצעי שנרשם על ידי האברך בהרשמתו — אין צורך להזין פרטים ידנית</p>
+    <div class="field"><label>אברך</label><input type="text" value="משה לוי" readonly style="background:#f3f2ee;"></div>
+    <div class="field"><label>סכום שיועבר אוטומטית</label><input type="text" value="₪150" readonly style="background:#f3f2ee;"></div>
+    <div class="field"><label>הערה לתיעוד פנימי (לא חובה)</label><input type="text" placeholder="לדוגמה: אושר טלפונית ע״י המשפחה"></div>
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <button class="btn-primary" style="margin-top:0;flex:1;" onclick="confirmPayment()">אשר הגעה ושחרר תשלום</button>
+      <button class="btn-ghost" onclick="closePayModal()">ביטול</button>
     </div>
   </div>
 </div>
 
+<div class="modal-overlay" id="importModalOverlay" onclick="closeImportModal(event)">
+  <div class="modal wide" onclick="event.stopPropagation()">
+    <h3>ייבוא אברכים מאקסל</h3>
+    <p id="importIntro">העלו קובץ Excel עם רשימת אברכים (שם, טלפון, עיר, אזור, זמינות) — המערכת תקרא אותו ותציג תצוגה מקדימה לפני הייבוא, במקום להקליד כל אברך בנפרד</p>
+
+    <div id="importStep1">
+      <div class="dropzone" onclick="document.getElementById('importFileInput').click()">
+        <div class="icon">📄</div>
+        <div class="main">גררו קובץ לכאן, או לחצו לבחירה</div>
+        <div class="sub">קבצי Excel ‎(.xlsx)‎ בלבד</div>
+      </div>
+      <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="startImportPreview()">
+    </div>
+
+    <div id="importStep2" style="display:none;text-align:center;">
+      <div class="spinner"></div>
+      <p id="importFileName" style="text-align:center;">קורא את הקובץ...</p>
+    </div>
+
+    <div id="importStep3" style="display:none;">
+      <p style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:4px;">נמצאו 83 רשומות</p>
+      <div class="import-summary">
+        <div class="pill ok">✓ 78 תקינות</div>
+        <div class="pill warn">⚠ 5 דורשות תיקון</div>
+      </div>
+      <table class="mini-table">
+        <thead><tr><th>שם</th><th>טלפון</th><th>עיר</th><th>אזור</th><th>זמינות</th></tr></thead>
+        <tbody>
+          <tr><td>אברהם כהן</td><td>050-1234567</td><td>בני ברק</td><td>בני ברק, ר"ג</td><td>ערב</td></tr>
+          <tr><td>יעקב לוי</td><td>052-2345678</td><td>ירושלים</td><td>ירושלים</td><td>כל היום</td></tr>
+          <tr><td>דוד ישראל</td><td>054-3456789</td><td>פ"ת</td><td>פ"ת, ת"א</td><td>16:00-21:00</td></tr>
+          <tr class="err"><td>מוטי גרין</td><td>12345</td><td>—</td><td>—</td><td>⚠ מספר טלפון לא תקין</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 4px;">מוצגות 4 מתוך 83 שורות · השורות השגויות ידולגו בייבוא</p>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn-primary" style="margin-top:0;flex:1;" onclick="confirmImport()">ייבוא 78 אברכים ←</button>
+        <button class="btn-ghost" onclick="closeImportModal()">ביטול</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">התשלום סומן כהועבר בהצלחה</div>
+
+<script>
+  function showTab(id){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    var map={home:'home',request:'request',avrech:'avrech',payment:'payment',admin:'admin',success:'home','avrech-success':'avrech'};
+    var navId = map[id] || null;
+    if(navId){
+      document.querySelector('.tab-btn[data-tab="'+navId+'"]').classList.add('active');
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showTab(btn.dataset.tab));
+  });
+
+  var count = 3;
+  var pricePer = 150;
+  function changeCount(delta){
+    count = Math.min(9, Math.max(1, count+delta));
+    document.getElementById('countVal').textContent = count;
+    document.getElementById('summaryCount').textContent = count + ' אנשים';
+    document.getElementById('summaryTotal').textContent = '₪' + (count*pricePer);
+  }
+
+  function showToast(msg){
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('active');
+    setTimeout(function(){ toast.classList.remove('active'); }, 2600);
+  }
+
+  function openPayModal(){
+    document.getElementById('payModalOverlay').classList.add('active');
+  }
+  function closePayModal(e){
+    document.getElementById('payModalOverlay').classList.remove('active');
+  }
+  function confirmPayment(){
+    document.getElementById('payModalOverlay').classList.remove('active');
+    document.getElementById('mosheStatusCell').innerHTML = '<span class="badge paid">הועבר אוטומטית</span>';
+    var pendingEl = document.getElementById('pendingAmount');
+    var current = parseInt(pendingEl.textContent.replace(/[^0-9]/g,''));
+    pendingEl.textContent = '₪' + (current - 150);
+    showToast('התשלום הועבר אוטומטית לאברך');
+  }
+
+  function openImportModal(){
+    document.getElementById('importStep1').style.display='block';
+    document.getElementById('importStep2').style.display='none';
+    document.getElementById('importStep3').style.display='none';
+    document.getElementById('importIntro').style.display='block';
+    document.getElementById('importFileInput').value='';
+    document.getElementById('importModalOverlay').classList.add('active');
+  }
+  function closeImportModal(e){
+    document.getElementById('importModalOverlay').classList.remove('active');
+  }
+  function startImportPreview(){
+    var f = document.getElementById('importFileInput').files[0];
+    var name = f ? f.name : 'אברכים_כולל.xlsx';
+    document.getElementById('importStep1').style.display='none';
+    document.getElementById('importIntro').style.display='none';
+    document.getElementById('importFileName').textContent = 'קורא את ' + name + ' ...';
+    document.getElementById('importStep2').style.display='block';
+    setTimeout(function(){
+      document.getElementById('importStep2').style.display='none';
+      document.getElementById('importStep3').style.display='block';
+    }, 1000);
+  }
+  function confirmImport(){
+    document.getElementById('importModalOverlay').classList.remove('active');
+    var el = document.getElementById('activeAvrechCount');
+    el.textContent = (parseInt(el.textContent) + 78);
+    showToast('78 אברכים יובאו בהצלחה למאגר');
+  }
+
+  // ===== התראה גם למקרה שיגיעו לטאב payment/admin שעדיין בדמו =====
+  document.addEventListener('DOMContentLoaded', function(){
+    var payBtn = document.querySelector('.tab-btn[data-tab="payment"]');
+    var adminBtn = document.querySelector('.tab-btn[data-tab="admin"]');
+  });
+</script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD2RqHxKKtaVNQcSfSmvun88noAr6YhFr8",
@@ -75,36 +853,106 @@ service cloud.firestore {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  window.runTest = async function(){
-    const btn = document.getElementById('testBtn');
-    const resultEl = document.getElementById('result');
+  function showFieldError(elId, msg){
+    var el = document.getElementById(elId);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function hideFieldError(elId){
+    document.getElementById(elId).style.display = 'none';
+  }
+
+  // ----- שליחת בקשה למניין -----
+  window.submitRequest = async function(){
+    hideFieldError('reqError');
+    const name = document.getElementById('reqName').value.trim();
+    const phone = document.getElementById('reqPhone').value.trim();
+    const cemetery = document.getElementById('reqCemetery').value;
+    const city = document.getElementById('reqCity').value.trim();
+    const date = document.getElementById('reqDate').value;
+    const time = document.getElementById('reqTime').value;
+    const count = parseInt(document.getElementById('countVal').textContent, 10);
+    const notes = document.getElementById('reqNotes').value.trim();
+
+    if(!name || !phone || !city || !date || !time){
+      showFieldError('reqError', 'נא למלא שם, טלפון, עיר, תאריך ושעה לפני המשך.');
+      return;
+    }
+
+    const btn = document.getElementById('reqSubmitBtn');
     btn.disabled = true;
-    btn.textContent = "בודק...";
-    resultEl.className = "result";
+    btn.textContent = 'שומר...';
 
     try {
-      const testDocRef = doc(db, "connection_test", "ping");
-      await setDoc(testDocRef, {
-        message: "בדיקת חיבור מהאתר",
-        checkedAt: serverTimestamp()
+      await addDoc(collection(db, 'requests'), {
+        requesterName: name,
+        requesterPhone: phone,
+        cemetery: cemetery,
+        city: city,
+        date: date,
+        time: time,
+        countNeeded: count,
+        notes: notes,
+        pricePerPerson: 150,
+        totalPrice: count * 150,
+        status: 'ממתין',
+        createdAt: serverTimestamp()
       });
-      const snap = await getDoc(testDocRef);
-
-      if (snap.exists()) {
-        resultEl.className = "result ok show";
-        resultEl.innerHTML = "<b>✅ החיבור עובד מצוין!</b>הצלחתי לכתוב ולקרוא רשומה מה-Firestore שלך. אפשר להמשיך לבניית האתר המלא.";
-      } else {
-        resultEl.className = "result err show";
-        resultEl.innerHTML = "<b>⚠️ תוצאה חלקית</b>הכתיבה הצליחה אבל הקריאה חזרה ריקה. שלח/י צילום מסך לבדיקה.";
-      }
+      showTab('payment');
+      showToast('הבקשה נשמרה בהצלחה! ממשיכים לתשלום (בשלב זה עדיין דמו)');
     } catch (err) {
-      resultEl.className = "result err show";
-      resultEl.innerHTML = "<b>❌ החיבור נכשל</b>קוד שגיאה: <code>" + (err.code || "לא ידוע") + "</code><br>הודעה: " + err.message;
+      showFieldError('reqError', 'שגיאה בשמירה: ' + err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = "בדוק שוב";
+      btn.textContent = 'שמירת הבקשה והמשך לתשלום ←';
+    }
+  };
+
+  // ----- הצטרפות אברך -----
+  window.submitAvrech = async function(){
+    hideFieldError('avError');
+    const name = document.getElementById('avName').value.trim();
+    const phone = document.getElementById('avPhone').value.trim();
+    const city = document.getElementById('avCity').value.trim();
+    const group = document.getElementById('avGroup').value.trim();
+    const regions = Array.from(document.querySelectorAll('#avRegions input:checked')).map(cb => cb.value);
+    const from = document.getElementById('avFrom').value;
+    const to = document.getElementById('avTo').value;
+    const payMethod = document.getElementById('avPayMethod').value;
+    const payDetails = document.getElementById('avPayDetails').value.trim();
+
+    if(!name || !phone || !city || regions.length === 0 || !payDetails){
+      showFieldError('avError', 'נא למלא שם, טלפון, עיר, לפחות אזור אחד ופרטי תשלום לקבלה.');
+      return;
+    }
+
+    const btn = document.getElementById('avSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'שולח...';
+
+    try {
+      await addDoc(collection(db, 'avrechim'), {
+        name: name,
+        phone: phone,
+        city: city,
+        group: group,
+        regions: regions,
+        availableFrom: from,
+        availableTo: to,
+        paymentMethod: payMethod,
+        paymentDetails: payDetails,
+        active: true,
+        createdAt: serverTimestamp()
+      });
+      showTab('avrech-success');
+    } catch (err) {
+      showFieldError('avError', 'שגיאה בשמירה: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'שליחת בקשה להצטרפות ←';
     }
   };
 </script>
+
 </body>
 </html>
